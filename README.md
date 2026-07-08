@@ -14,3 +14,22 @@ Toda análise técnica, crítica fundamentada ou contribuição proveniente da e
 
 Para mais informações e arquivos entre em contato pelo whatsapp :
 12-99228-2144
+
+
+MOTIONCONTROL_Cia402_GRACIA_CODE
+
+├── Controlador CNC em ST
+│   ├── Interpretador GRACIA_CODE
+│   ├── Motion Control
+│   └── CiA 402 / EtherCAT
+
+├── HMI Web
+│   ├── HTML
+│   ├── Node.js
+│   └── WebSocket
+
+├── FENIX
+│   ├── Python
+│   └── Tkinter
+
+└── Documentação
