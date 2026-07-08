@@ -12,9 +12,6 @@ Mais do que apresentar uma implementação, este trabalho propõe uma arquitetur
 Toda análise técnica, crítica fundamentada ou contribuição proveniente da experiência de profissionais envolvidos no desenvolvimento de sistemas industriais será considerada uma oportunidade para o aprimoramento desta arquitetura e para a ampliação do conhecimento na área de controle de movimento e automação industrial.
 
 
-Para mais informações e arquivos entre em contato pelo whatsapp :
-12-99228-2144
-
 
 MOTIONCONTROL_Cia402_GRACIA_CODE
 
