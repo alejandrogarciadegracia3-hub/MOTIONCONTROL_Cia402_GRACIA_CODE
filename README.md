@@ -33,3 +33,6 @@ MOTIONCONTROL_Cia402_GRACIA_CODE
 │   └── Tkinter
 
 └── Documentação
+
+
+![Imagem do projeto](20260708_183033.jpg)
