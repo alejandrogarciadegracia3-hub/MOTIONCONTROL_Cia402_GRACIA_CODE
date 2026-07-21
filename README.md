@@ -31,6 +31,97 @@ MOTIONCONTROL_Cia402_GRACIA_CODE
 
 └── Documentação
 
+┌──────────────────────────────────────────────────────────────────┐
+│  [1] ENTRADA / HMI                              (fora do tempo real)
+│  ─────────────────────────────────────────────────────────────── │
+│  HMI Python/Tkinter (Android)                                     │
+│  USB serial (/dev/ttyGS0) · protocolo texto "nome=valor"          │
+│  → HMI_USB_Receiver_Transmitter → ProcessarLinha                  │
+└──────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  [2] CARREGAMENTO DO PROGRAMA                                     │
+│  ─────────────────────────────────────────────────────────────── │
+│  Loader_ProgGCODE → ProgramaGCODE[1..200]                          │
+│  rxDone → dispara Interpretador                                   │
+└──────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  [3] INTERPRETAÇÃO                          (GRACIA_code → params) │
+│  ─────────────────────────────────────────────────────────────── │
+│  Interpretador_GRACIA_CODE                                         │
+│  Blocos "Função: Fx" ... "$"                                       │
+│  Dicionário: Variaveis[] / TiposVariaveis[]                        │
+│  StrToReal · StrToInt · StrSplit                                   │
+│  ExecuteFunc → roteia F1–F6                                        │
+└──────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+╔════════════════════════════════════════════════════════════════╗
+║  [4] GERAÇÃO GEOMÉTRICA                                          ║
+║      task LENTA · não determinística · até ~15s (sem problema)   ║
+║  ──────────────────────────────────────────────────────────────  ║
+║   F1 Linear/Circular      F3 Bi-Planar                            ║
+║   F4 Bi-Planar Pumpkin    F5 Cônica       F6 Revolution Points     ║
+║                                                                    ║
+║   cada uma calcula:                                                ║
+║     • geometria (trigonometria, discretização angular)             ║
+║     • CalcAccelDecelFromProfile → aceleração máxima real           ║
+║       (a partir de Torque / Massa / Inércia)                       ║
+║     • VELOCIDADE_X_Y_Z                                             ║
+║     • ANG1 → zona de frenagem antecipada (look-ahead)              ║
+║     • ConvertRealDiffToTargetDINT                                  ║
+║                                                                    ║
+║   grava em → bufferX/Y/Z · bufferVelX/Y/Z · bufferTarget_H/L      ║
+║   (buffer único, global, sequencial — sem reentrância)             ║
+║   JOG usa buffer exclusivo à parte                                 ║
+╚════════════════════════════════════════════════════════════════╝
+                              │
+              ═══════ SINCRONIZAÇÃO ENTRE TASKS ═══════
+                              │
+                              ▼
+╔════════════════════════════════════════════════════════════════╗
+║  [5] EXECUÇÃO DETERMINÍSTICA                                     ║
+║      task RÁPIDA · ciclo EtherCAT · 1 ms                         ║
+║  ──────────────────────────────────────────────────────────────  ║
+║   DRIVE_INPUT_OUTPUT                                              ║
+║     lê buffer ponto a ponto (já calculado)                        ║
+║     handshake CiA 402:                                            ║
+║       escreve alvo (607Ah)                                        ║
+║       → seta NEW_SETPOINT (6040h)                                 ║
+║       → aguarda ACKNOWLEDGE (6041h)                                ║
+║       → limpa bit → avança                                        ║
+║     sincronismo X/Y/Z via readyToAdvanceGlobal                     ║
+║                                                                    ║
+║   JOG_X_Y_Z_PULSADO / ControlPushButtons                          ║
+║     comando manual direto, em paralelo, bypassa o buffer           ║
+╚════════════════════════════════════════════════════════════════╝
+                              │
+                              ▼   (mesmo ciclo rápido, em paralelo)
+╔════════════════════════════════════════════════════════════════╗
+║  [6] MALHA DE COMPENSAÇÃO                                         ║
+║      camada de OBSERVAÇÃO / PESQUISA — não crítica                ║
+║      (o drive já é confiável de forma autônoma)                   ║
+║  ──────────────────────────────────────────────────────────────  ║
+║   LAG_6064_TORQUE_FORCA_VELOCIDADE                                 ║
+║     posição real (6064h) vs. posição prevista no buffer            ║
+║     → calcula erro de seguimento (lag) por eixo                    ║
+║     → ajusta 6081h se erro exceder limite                          ║
+║     → aciona Quick Stop se correção insuficiente                   ║
+╚════════════════════════════════════════════════════════════════╝
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  [7] RETROALIMENTAÇÃO HMI                                          │
+│  ─────────────────────────────────────────────────────────────── │
+│  PrepararLinhaTransmissao → posição, lag, estados de falha → HMI  │
+└──────────────────────────────────────────────────────────────────┘
+
+
+
+
 ![Imagem 1](20260708_183033.jpg)
 
 ![Imagem 2](20260708_225320.jpg)
