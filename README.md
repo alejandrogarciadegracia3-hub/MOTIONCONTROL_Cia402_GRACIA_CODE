@@ -33,6 +33,99 @@ MOTIONCONTROL_Cia402_GRACIA_CODE
 
 
 
+
+
+
+
+
+
+┌──────────────────────────────┐
+│ FASE 1 — INICIALIZAÇÃO       │
+├──────────────────────────────┤
+│ Ligar HMI                    │
+│ Ligar CLP                    │
+│ Alimentação SCA06            │
+│ 24 Vcc controle              │
+│ → CPU inicializa             │
+│ Comunicação disponível       │
+│ Potência barramento DC       │
+│ → Estágio pronto             │
+│ Diagnóstico                  │
+│ Parâmetros                   │
+│ Estado inicial CiA 402       │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 2 — CONTROLWORD 6040    │
+├──────────────────────────────┤
+│ Enable Voltage (Bit 1)      │
+│ Fault Reset (Bit 7)    │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 3 — COMUNICAÇÃO         │
+├──────────────────────────────┤
+│ Estabelecer comunicação      │
+│ CLP ↔ SCA06 via EtherCAT     │
+│                              │
+│ Inicializar rede EtherCAT    │
+│                              │
+│ Iniciar troca cíclica        │
+│ de PDOs                      │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 4 — PROGRAMA            │
+├──────────────────────────────┤
+│ HMI envia TXT GRACIA_CODE ao CLP         │
+│ CLP interpreta                │
+│ CLP gera buffers              │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 5 — CARGA DOS PDOs      │
+├──────────────────────────────┤
+│ FUNÇÃO DRIVE INPUT OUTPUT gerencia  │
+│ os buffers no CLP │Drive Cia402 handshake
+│                              │
+│ CLP coloca índice 1 dos      │
+│ buffers nos PDOs             │
+│                              │
+│ SCA06 recebe os PDOs         │
+│                              │
+│ Índice 1 aguarda habilitação │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 6 — EXECUÇÃO            │
+├──────────────────────────────┤
+│ Enable Operation HMI         │
+│ Operation Enable(Bit 3) Controlword 0x6040           │
+│ Executa índice 1             │
+│ Retorna handshake            │
+│ CLP libera próximo índice    │
+│ Repetir:                     │
+│ Enviar → Aguardar → Avançar  │
+│ Finalizar buffers            │
+└──────────────────────────────┘
+▼
+┌──────────────────────────────┐
+│ FASE 7 — RESET HALT          │
+├──────────────────────────────┤
+│ Reset de parada por          │
+│ halt programado              │
+│                              │
+│ Troca de ferramentas         │
+│                              │
+│ Controlword 0x6040           │
+│ Bit 8 — Halt    │
+│ Bit 8 = 0 → Reset Halt       │
+│                              │
+│ Restart program              │
+└──────────────────────────────┘
+
+
+
 flowchart TD
  # GRACIA-CODE CNC ARCHITECTURE
 
