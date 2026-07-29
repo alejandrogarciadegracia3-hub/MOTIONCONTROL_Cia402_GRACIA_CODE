@@ -68,6 +68,36 @@ MOTIONCONTROL_Cia402_GRACIA_CODE
 │ Estabelecer comunicação      │
 │ CLP ↔ SCA06 via EtherCAT     │
 │                              │
+┌──────────────────────────────┐
+│ FASE 1 — INICIALIZAÇÃO       │
+├──────────────────────────────┤
+│ Ligar HMI                    │
+│ Ligar CLP                    │
+│ Alimentação SCA06            │
+│ 24 Vcc controle              │
+│ → CPU inicializa             │
+│ Comunicação disponível       │
+│ Potência barramento DC       │
+│ → Estágio pronto             │
+│ Diagnóstico                  │
+│ Parâmetros                   │
+│ Estado inicial CiA 402       │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 2 — CONTROLWORD 6040    │
+├──────────────────────────────┤
+│ Enable Voltage (Bit 1)      │
+│ Fault Reset (Bit 7)    │
+│ Enable Operation  (Bit 3)    │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 3 — COMUNICAÇÃO         │
+├──────────────────────────────┤
+│ Estabelecer comunicação      │
+│ CLP ↔ SCA06 via EtherCAT     │
+│                              │
 │ Inicializar rede EtherCAT    │
 │                              │
 │ Iniciar troca cíclica        │
@@ -75,9 +105,15 @@ MOTIONCONTROL_Cia402_GRACIA_CODE
 └──────────────┬───────────────┘
                ▼
 ┌──────────────────────────────┐
-│ FASE 4 — PROGRAMA            │
-├──────────────────────────────┤
-│ HMI envia TXT GRACIA_CODE ao CLP         │
+│ FASE 4 — MANUAL   │
+│ JOG_PULSADO_CONTÍNUO  │
+│ CLP interpreta  JOG MANUAL     │
+│ CLP gera buffers  JOG          │
+└──────────────┬───────────────┘
+               ▼
+┌──────────────────────────────┐
+│ FASE 4 —  AUTOMÁTICO  │
+│ HMI envia TXT GRACIA_CODE ao CLP │
 │ CLP interpreta                │
 │ CLP gera buffers              │
 └──────────────┬───────────────┘
@@ -122,7 +158,7 @@ MOTIONCONTROL_Cia402_GRACIA_CODE
 │ Bit 8 = 0 → Reset Halt       │
 │                              │
 │ Restart program              │
-└──────────────────────────────┘
+└──────────────────────────────┘   
 
 
 
