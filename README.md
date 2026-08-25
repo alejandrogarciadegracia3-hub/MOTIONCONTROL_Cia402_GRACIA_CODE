@@ -1,4 +1,4 @@
-CONTROLADOR CNC RELEASE 9
+CONTROLADOR CNC RELEASE 10
 
 
 Este trabalho é apresentado aos profissionais que concebem, desenvolvem e evoluem as tecnologias empregadas na automação industrial: arquitetos de software para CLPs, desenvolvedores de sistemas de Motion Control, projetistas de servoacionamentos, especialistas em tempo real, pesquisadores e engenheiros envolvidos na criação de plataformas de controle industrial.
